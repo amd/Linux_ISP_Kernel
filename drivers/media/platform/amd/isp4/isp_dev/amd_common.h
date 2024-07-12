@@ -87,10 +87,8 @@ struct isp4_capture_buffer {
 	struct list_head list;
 };
 
-#define ISP4_VDEV_NUM		3
+#define ISP4_VDEV_NUM		1
 #define ISP4_VDEV_PREVIEW	0
-#define ISP4_VDEV_VIDEO		1
-#define ISP4_VDEV_STILL		2
 
 struct isp4_video_dev {
 	struct video_device vdev;

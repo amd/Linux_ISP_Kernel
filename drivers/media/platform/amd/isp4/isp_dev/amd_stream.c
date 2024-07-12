@@ -82,13 +82,9 @@ static int vb2_amdisp_mmap(void *buf_priv, struct vm_area_struct *vma);
 static void vb2_amdgpu_put(void *buf_priv);
 
 #define PREVIEW_VDEV_NAME "Preview"
-#define VIDEO_VDEV_NAME "Video"
-#define STILL_VDEV_NAME "Still"
 
-static const char *isp_video_dev_name[ISP4_VDEV_NUM] = {
+static const char * const isp_video_dev_name[] = {
 	PREVIEW_VDEV_NAME,
-	VIDEO_VDEV_NAME,
-	STILL_VDEV_NAME,
 };
 
 /* Sizes must be in increasing order */
@@ -99,7 +95,10 @@ static const struct v4l2_frmsize_discrete isp_frmsize[] = {
 	{1280, 960},
 	{1920, 1080},
 	{1920, 1440},
-	{2560, 1440}
+	{2560, 1440},
+	{2880, 1620},
+	{2880, 1624},
+	{2888, 1808},
 };
 
 static const u32 formats[] = {
@@ -176,19 +175,10 @@ static s32 isp_module_notify_cb(void *ctx, enum cb_evt_id event, void *param)
 					       &evt_param->preview.buf);
 		}
 
-		if (evt_param->video.status == BUF_DONE_STATUS_SUCCESS) {
-			isp4_handle_frame_done(&c->isp_vdev[ISP4_VDEV_VIDEO],
-					       &evt_param->video.buf);
-		}
-
-		if (evt_param->zsl.status == BUF_DONE_STATUS_SUCCESS) {
-			isp4_handle_frame_done(&c->isp_vdev[ISP4_VDEV_STILL],
-					       &evt_param->zsl.buf);
-		}
 	}
 	break;
 	default:
-		ISP_PR_ERR("supported event %d!", event);
+		ISP_PR_ERR("not supported event %d!", event);
 		return -1;
 	}
 
@@ -335,14 +325,8 @@ static int vb2_amdisp_mmap(void *buf_priv, struct vm_area_struct *vma)
 
 	vm_flags_set(vma, VM_DONTEXPAND);
 
-	/* Workaround for Thunk bug creating PROT_NONE,MAP_PRIVATE mappings
-	 * for debugger access to invisible VRAM. Should have used MAP_SHARED
-	 * instead. Clearing VM_MAYWRITE prevents the mapping from ever
-	 * becoming writable and makes is_cow_mapping(vm_flags) false.
-	 */
-	if (is_cow_mapping(vma->vm_flags) &&
-	    !(vma->vm_flags & VM_ACCESS_FLAGS))
-		vm_flags_clear(vma, VM_MAYWRITE);
+	/* Enforce no COW since ttm_bo_mmap_obj requires it */
+	vm_flags_clear(vma, VM_MAYWRITE);
 
 	ret = ttm_bo_mmap_obj(vma, tbo);
 	if (ret < 0) {
@@ -978,8 +962,7 @@ static int isp4_ioctl_querycap(struct file *file, void *fh,
 
 	strscpy(cap->driver, ISP_DRV_NAME, sizeof(cap->driver));
 	snprintf(cap->card, sizeof(cap->card), "%s_%s", ISP_DRV_NAME, ctx->vdev.name);
-	snprintf(cap->bus_info, sizeof(cap->bus_info), "platform:%s",
-		 ISP_DRV_NAME);
+	snprintf(cap->bus_info, sizeof(cap->bus_info), "platform:%s", ISP_DRV_NAME);
 
 	cap->capabilities |= (V4L2_CAP_READWRITE | V4L2_CAP_STREAMING |
 			      V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_IO_MC);
@@ -1661,12 +1644,6 @@ static const struct vb2_ops isp4_qops = {
 
 enum stream_id get_vdev_stream_id(struct isp4_video_dev *vdev)
 {
-	if (!vdev)
-		return STREAM_ID_PREVIEW;
-	if (!strcasecmp(vdev->vdev.entity.name, VIDEO_VDEV_NAME))
-		return STREAM_ID_VIDEO;
-	if (!strcasecmp(vdev->vdev.entity.name, STILL_VDEV_NAME))
-		return STREAM_ID_ZSL;
 	return STREAM_ID_PREVIEW;
 }
 

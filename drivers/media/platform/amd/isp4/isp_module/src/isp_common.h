@@ -684,8 +684,6 @@ result_t isp_set_stream_path(struct isp_context *isp, enum camera_port_id cid,
 result_t isp_send_meta_buf(struct isp_context *isp, enum camera_port_id cid,
 			   enum fw_cmd_resp_stream_id fw_stream_id);
 
-s32 isp_get_timestamp(struct isp_context *isp, enum camera_port_id cid,
-		      u64 timestamp_fw, s64 *timestamp_sw);
 bool isp_semaphore_acquire(struct isp_context *isp);
 void isp_semaphore_release(struct isp_context *isp);
 bool isp_semaphore_acquire_one_try(struct isp_context *isp);

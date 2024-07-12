@@ -71,91 +71,6 @@ static enum isp_aspect_ratio get_aspect_ratio(u32 width, u32 height)
 		return ISP_ASPECT_RATIO_16_9;
 }
 
-static void update_output_crop_info(char *desc, struct buffer_meta_info_t *buf_meta)
-{
-	u32 img_w, img_h;
-	u32 crop_w, crop_h;
-	u32 crop_new_w, crop_new_h;
-
-	if (!buf_meta) {
-		ISP_PR_ERR("buf_meta is NULL\n");
-		return;
-	}
-	if (!buf_meta->enabled) {
-		ISP_PR_ERR("buf_meta is not enabled\n");
-		return;
-	}
-
-	img_w = buf_meta->image_prop.width;
-	img_h = buf_meta->image_prop.height;
-	crop_w = buf_meta->crop_win_acq.window.h_size;
-	crop_h = buf_meta->crop_win_acq.window.v_size;
-
-	if (!img_w || !img_h || !crop_w || !crop_h) {
-		ISP_PR_ERR("%s(%s) fail bad w:h,cropw:croph %u:%u, %u:%u\n",
-			   __func__, desc ? desc : "", img_w, img_h, crop_w,
-			   crop_h);
-		return;
-	}
-
-	if (get_aspect_ratio(img_w, img_h) == get_aspect_ratio(crop_w, crop_h))
-		return;
-
-	crop_new_w = crop_w;
-	crop_new_h = img_h * crop_new_w / img_w;
-	if (crop_new_h % 2)
-		crop_new_h--;
-	if (crop_new_h < crop_h) {
-		u32 x, y;
-
-		x = buf_meta->crop_win_acq.window.h_offset;
-		y = buf_meta->crop_win_acq.window.v_offset;
-		buf_meta->crop_win_acq.window.v_offset +=
-			(crop_h - crop_new_h) / 2;
-		if (buf_meta->crop_win_acq.window.v_offset % 2)
-			buf_meta->crop_win_acq.window.v_offset--;
-		buf_meta->crop_win_acq.window.h_size = crop_new_w;
-		buf_meta->crop_win_acq.window.v_size = crop_new_h;
-		ISP_PR_INFO("%s(%s) cropinfo [%u,%u,%u,%u] to [%u,%u,%u,%u]\n",
-			    __func__, desc ? desc : "", x, y, crop_w, crop_h,
-			    buf_meta->crop_win_acq.window.h_offset,
-			    buf_meta->crop_win_acq.window.v_offset, crop_new_w,
-			    crop_new_h);
-		return;
-	}
-
-	crop_new_h = crop_h;
-	crop_new_w = img_w * crop_new_h / img_h;
-	if (crop_new_w % 2)
-		crop_new_w--;
-	if (crop_new_w < crop_w) {
-		u32 x, y;
-
-		x = buf_meta->crop_win_acq.window.h_offset;
-		y = buf_meta->crop_win_acq.window.v_offset;
-		buf_meta->crop_win_acq.window.h_offset +=
-			(crop_w - crop_new_w) / 2;
-		if (buf_meta->crop_win_acq.window.h_offset % 2)
-			buf_meta->crop_win_acq.window.h_offset--;
-		buf_meta->crop_win_acq.window.h_size = crop_new_w;
-		buf_meta->crop_win_acq.window.v_size = crop_new_h;
-		ISP_PR_INFO("%s(%s) cropinfo [%u,%u,%u,%u] to [%u,%u,%u,%u]\n",
-			    __func__, desc ? desc : "", x, y, crop_w, crop_h,
-			    buf_meta->crop_win_acq.window.h_offset,
-			    buf_meta->crop_win_acq.window.v_offset, crop_new_w,
-			    crop_new_h);
-		return;
-	}
-}
-
-static void update_all_output_crop_info(struct meta_info_t *meta)
-{
-	if (!meta)
-		return;
-	update_output_crop_info("prev", &meta->preview);
-	update_output_crop_info("video", &meta->video);
-}
-
 static struct isp_mapped_buf_info *
 isp_preview_done(struct isp_context *isp, enum camera_port_id cid,
 		 struct meta_info_t *meta, struct frame_done_cb_para *pcb)
@@ -505,55 +420,6 @@ void isp_fw_resp_cmd_skip_extra(struct isp_context *isp,
 	sif = &isp->sensor_info[cid];
 }
 
-result_t isp_get_timestamp(struct isp_context *isp, enum camera_port_id cid,
-			   u64 timestamp_fw, int64 *timestamp_sw)
-{
-#define ISP_TIMESTAMP_COUNTER_FREQUENCY 24000000 /* 24MHZ */
-#define ISP_TIMESTAMP_COUNTER_BITWIDTH 64
-	int64 timestamp_sw_base = 0;
-	u64 timestamp_fw_base = 0;
-
-	if (!is_para_legal(isp, cid)) {
-		ISP_PR_ERR("%s fail for para, id %d\n", __func__, cid);
-		goto fail;
-	}
-
-	timestamp_sw_base = isp->timestamp_sw_base;
-	timestamp_fw_base = isp->timestamp_fw_base;
-	if (timestamp_sw_base != 0 && timestamp_fw_base != 0) {
-		if (timestamp_fw >= timestamp_fw_base) {
-			/*
-			 * keep all value under 100-ns unit.
-			 * The register bitwidth to track FW timestamp is 64bit
-			 */
-			*timestamp_sw = timestamp_sw_base +
-					(timestamp_fw - timestamp_fw_base) *
-					NANOSECONDS /
-					ISP_TIMESTAMP_COUNTER_FREQUENCY;
-		} else {
-			/* wrap around, keep here for other projects */
-			/* if register bitwidth is not enough */
-			*timestamp_sw = 0;
-
-			ISP_PR_ERR
-			("%s invalid timestamp, fw:%llx, fw_base:%llx\n",
-			 __func__, timestamp_fw, timestamp_fw_base);
-			goto fail;
-		}
-	} else {
-		ISP_PR_ERR("%s invalid base timestamp, sw:%llx, fw:%llx\n",
-			   __func__, timestamp_sw_base, timestamp_fw_base);
-		goto fail;
-	}
-
-	ISP_PR_DBG("cid:%d, timestamp correlated from FW=%llx to SW=%llx",
-		   cid, timestamp_fw, *timestamp_sw);
-	return RET_SUCCESS;
-
-fail:
-	return RET_FAILURE;
-}
-
 void isp_fw_resp_cmd_done(struct isp_context *isp,
 			  enum fw_cmd_resp_stream_id fw_stream_id,
 			  struct resp_cmd_done *para)
@@ -645,23 +511,8 @@ void isp_fw_resp_frame_done(struct isp_context *isp,
 
 	pcb->poc = meta->poc;
 	pcb->cam_id = cid;
-	update_all_output_crop_info(meta);
-	memcpy(&pcb->meta_info, meta, sizeof(struct meta_info_t));
 
-	/* IspProcEngDataInFrameDone(isp, cid, fw_stream_id, meta, pcb); */
-	/* pcb->scene_mode = sif->scene_mode; */
-	if (isp_get_timestamp(isp, cid,
-			      ((u64)meta->time_stamp_lo) |
-			      (((u64)meta->time_stamp_hi) << 32),
-			      &pcb->time_stamp) != RET_SUCCESS) {
-		pcb->time_stamp = isp->timestamp_sw_prev;
-		ISP_PR_WARN("failed to get timestamp,cid %u,stream_id %d,timestamp:0x%llx\n",
-			    cid, fw_stream_id, pcb->time_stamp);
-	} else {
-		isp->timestamp_sw_prev = pcb->time_stamp;
-		ISP_PR_INFO("success to get timestamp,cid %u,stream_id %d,timestamp:0x%llx\n",
-			    __func__, cid, fw_stream_id, pcb->time_stamp);
-	}
+	memcpy(&pcb->meta_info, meta, sizeof(struct meta_info_t));
 
 	ISP_PR_INFO("%s,ts:%llu,cameraId:%d,streamId:%d,poc:%u,preview_en:%u,%s(%i)\n",
 		    __func__, ktime_get_ns(), cid, fw_stream_id, meta->poc,

@@ -67,13 +67,10 @@ static void EnableAGPIO85(bool_t high)
 	prev_val = isp_indirect_rreg(AGPIO85_ADDRESS);
 	val = prev_val;
 	if (high)
-	{
 		val = val | (1 << OUTPUT_VALUE_BIT) | (1 << STATUS_VALUE_BIT);
-	}
 	else
-	{
 		val = val & ~((1 << OUTPUT_VALUE_BIT) | (1 << STATUS_VALUE_BIT));
-	}
+
 	val = val | (1 << OUTPUT_ENABLE_BIT);
 
 	ISP_PR_DBG("AGPIO85 write val(curr, prev) = (%x, %x)\n", val, prev_val);
@@ -245,6 +242,9 @@ enum imf_ret_value open_camera_imp(void *context,
 		return IMF_RET_SUCCESS;
 	}
 
+	ISP_PR_INFO("enable AGPIO85\n");
+	EnableAGPIO85(true);
+
 	if (isp->fw_mem_pool[cid] && isp->fw_mem_pool[cid]->sys_addr &&
 	    isp->fw_mem_pool[cid]->mem_size < INTERNAL_MEMORY_POOL_SIZE) {
 		/* the original buffer is too small, free it and do re-alloc */
@@ -306,10 +306,6 @@ enum imf_ret_value open_camera_imp(void *context,
 	isp_mutex_unlock(&isp->ops_mutex);
 
 	get_available_fw_cmdresp_stream_id(isp, actual_cid);
-
-	ISP_PR_INFO("enable AGPIO85 and delay 300ms\n");
-	EnableAGPIO85(true);
-	msleep(300);
 
 	ISP_PR_INFO("<- %s, suc\n", __func__);
 	return IMF_RET_SUCCESS;
@@ -380,8 +376,9 @@ enum imf_ret_value close_camera_imp(void *context, enum camera_port_id cid)
 	isp_gpu_mem_free(isp->fw_running_buf);
 	isp->fw_running_buf = NULL;
 
-	ISP_PR_INFO("disable AGPIO85\n");
+	ISP_PR_INFO("disable AGPIO85 and delay 20ms\n");
 	EnableAGPIO85(false);
+	msleep(20);
 suc:
 	isp_mutex_unlock(&isp->ops_mutex);
 	isp->sensor_info[cid].sensor_opened = 0;
@@ -1299,9 +1296,7 @@ result_t isp_setup_output(struct isp_context *isp, enum camera_port_id cid,
 				sen_info->status = START_STATUS_STARTED;
 				sif->start_status = START_STATUS_STARTED;
 				ISP_PR_INFO("kickoff stream suc:START_STATUS_STARTED\n");
-			}
-			else
-			{
+			} else {
 				ISP_PR_INFO("kickoff stream suc\n");
 			}
 		};
