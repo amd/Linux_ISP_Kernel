@@ -253,8 +253,7 @@ static int set_xclk(struct swisp_context *ctx, u32 xclk_mhz)
 	if (mbox_status == ISPSMC_Result_OK) {
 		reg_val = swisp_indirect_read_reg(ctx, HOST2PM_ARG_REG);
 		ISP_PR_DBG("set xclk %d success, reg_val %d\n",
-			    xclk_mhz,
-			    reg_val);
+			   xclk_mhz, reg_val);
 	} else {
 		ret = SWISP_RESULT_ERROR_GENERIC;
 		ISP_PR_ERR("failed, invalid pmfw response 0x%x\n", mbox_status);
@@ -291,8 +290,7 @@ static int set_iclk(struct swisp_context *ctx, u32 iclk_mhz)
 	if (mbox_status == ISPSMC_Result_OK) {
 		reg_val = swisp_indirect_read_reg(ctx, HOST2PM_ARG_REG);
 		ISP_PR_DBG("set iclk %d success, reg_val %d\n",
-			    iclk_mhz,
-			    reg_val);
+			   iclk_mhz, reg_val);
 	} else {
 		ret = SWISP_RESULT_ERROR_GENERIC;
 		ISP_PR_ERR("failed, invalid pmfw response 0x%x\n", mbox_status);
@@ -376,7 +374,7 @@ static enum swisp_result swisp_req_pwr(void *sw_isp,
 	if (mbox_status == ISPSMC_Result_OK) {
 		reg_val = swisp_indirect_read_reg(ctx, HOST2PM_ARG_REG);
 		ISP_PR_DBG("%s %s completed 0x%x\n",
-			    __func__, cmdstr, reg_val);
+			   __func__, cmdstr, reg_val);
 	} else {
 		ret = SWISP_RESULT_ERROR_GENERIC;
 		ISP_PR_ERR("%s %s failed, invalid pmfw response 0x%x\n",
@@ -568,7 +566,7 @@ int swisp_if_init(struct sw_isp_if *intf, struct amd_cam *pamd_cam)
 	intf->context = context;
 	swisp_if_self = intf;
 	ISP_PR_DBG("-><- %s context:%p amd_cam:%p\n",
-		    __func__, intf->context, context->amd_cam);
+		   __func__, intf->context, context->amd_cam);
 	return OK;
 }
 

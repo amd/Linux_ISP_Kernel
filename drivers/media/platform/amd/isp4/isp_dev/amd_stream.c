@@ -174,7 +174,6 @@ static s32 isp_module_notify_cb(void *ctx, enum cb_evt_id event, void *param)
 			isp4_handle_frame_done(&c->isp_vdev[ISP4_VDEV_PREVIEW],
 					       &evt_param->preview.buf);
 		}
-
 	}
 	break;
 	default:
@@ -364,7 +363,7 @@ static void vb2_amdgpu_detach_dmabuf(void *mem_priv)
 	}
 
 	ISP_PR_DBG("buf 0x%p:vaddr 0x%p gpu_addr 0x%llx size %ld\n",
-		    buf, buf->vaddr, buf->gpu_addr, buf->size);
+		   buf, buf->vaddr, buf->gpu_addr, buf->size);
 
 	if (buf->vaddr)
 		dma_buf_vunmap_unlocked(buf->dbuf, &map);
@@ -395,10 +394,10 @@ static void *vb2_amdgpu_attach_dmabuf(struct vb2_buffer *vb,
 	struct vb2_amdisp_buf *dbg_buf = (struct vb2_amdisp_buf *)dbuf->priv;
 
 	ISP_PR_DBG("buf 0x%p:vaddr 0x%p gpu_addr 0x%llx size %ld\n",
-		    buf, buf->vaddr, buf->gpu_addr, buf->size);
+		   buf, buf->vaddr, buf->gpu_addr, buf->size);
 
 	ISP_PR_DBG("dbg_buf 0x%p:vaddr 0x%p gpu_addr 0x%llx size %ld\n",
-		    dbg_buf, dbg_buf->vaddr, dbg_buf->gpu_addr, dbg_buf->size);
+		   dbg_buf, dbg_buf->vaddr, dbg_buf->gpu_addr, dbg_buf->size);
 
 	return buf;
 }
@@ -414,7 +413,7 @@ static void vb2_amdgpu_unmap_dmabuf(void *mem_priv)
 	}
 
 	ISP_PR_DBG("buf 0x%p:vaddr 0x%p gpu_addr 0x%llx size %ld\n",
-		    buf, buf->vaddr, buf->gpu_addr, buf->size);
+		   buf, buf->vaddr, buf->gpu_addr, buf->size);
 
 	dma_buf_vunmap_unlocked(buf->dbuf, &map);
 	buf->vaddr = NULL;
@@ -441,7 +440,7 @@ static int vb2_amdgpu_map_dmabuf(void *mem_priv)
 	buf->gpu_addr = mmap_buf->gpu_addr;
 
 	ISP_PR_DBG("buf 0x%p:vaddr 0x%p gpu_addr 0x%llx size %ld dbuf 0x%p\n",
-		    buf, buf->vaddr, buf->gpu_addr, buf->size, buf->dbuf);
+		   buf, buf->vaddr, buf->gpu_addr, buf->size, buf->dbuf);
 
 	return 0;
 }
@@ -508,7 +507,7 @@ static void vb2_amdgpu_dmabuf_ops_detach(struct dma_buf *dbuf,
 
 	if (!attach) {
 		ISP_PR_ERR("invalid attach handler 0x%p dbuf 0x%p\n",
-			    attach, dbuf);
+			   attach, dbuf);
 		return;
 	}
 
@@ -569,7 +568,7 @@ static int vb2_amdgpu_dmabuf_ops_vmap(struct dma_buf *dbuf,
 	struct vb2_amdisp_buf *buf = dbuf->priv;
 
 	ISP_PR_DBG("buf 0x%p:vaddr 0x%p gpu_addr 0x%llx size %ld\n",
-		    buf, buf->vaddr, buf->gpu_addr, buf->size);
+		   buf, buf->vaddr, buf->gpu_addr, buf->size);
 
 	iosys_map_set_vaddr(map, buf->vaddr);
 
@@ -580,8 +579,7 @@ static int vb2_amdgpu_dmabuf_ops_mmap(struct dma_buf *dbuf,
 				      struct vm_area_struct *vma)
 {
 	ISP_PR_DBG("dbuf 0x%p dbuf->priv 0x%p vma_start 0x%lx\n",
-		    dbuf, dbuf->priv,
-		    vma->vm_start);
+		   dbuf, dbuf->priv, vma->vm_start);
 
 	return vb2_amdisp_mmap(dbuf->priv, vma);
 }
@@ -797,7 +795,7 @@ static void *vb2_amdisp_alloc(struct vb2_buffer *vb, struct device *dev,
 	buf->dma_dir = vb->vb2_queue->dma_dir;
 
 	ISP_PR_DBG("buf 0x%p:vaddr 0x%p gpu_addr 0x%llx size %ld\n",
-		    buf, buf->vaddr, buf->gpu_addr, buf->size);
+		   buf, buf->vaddr, buf->gpu_addr, buf->size);
 
 	refcount_set(&buf->refcount, 1);
 
@@ -848,7 +846,7 @@ static void isp4_capture_return_all_buffers(struct isp4_video_dev *ctx,
 static int isp4_vdev_link_validate(struct media_link *link)
 {
 	ISP_PR_DBG("source(%s)->sink(%s)", link->source->entity->name,
-		    link->sink->entity->name);
+		   link->sink->entity->name);
 	return 0;
 }
 
@@ -859,7 +857,7 @@ static const struct media_entity_operations isp_vdev_ent_ops = {
 static int isp4_subdev_link_validate(struct media_link *link)
 {
 	ISP_PR_DBG("source(%s)->sink(%s)", link->source->entity->name,
-		    link->sink->entity->name);
+		   link->sink->entity->name);
 	return 0;
 }
 
@@ -964,7 +962,7 @@ static int isp4_ioctl_querycap(struct file *file, void *fh,
 	snprintf(cap->card, sizeof(cap->card), "%s", ISP_DRV_NAME);
 	snprintf(cap->bus_info, sizeof(cap->bus_info), "platform:%s", ISP_DRV_NAME);
 
-	cap->capabilities |= (V4L2_CAP_READWRITE | V4L2_CAP_STREAMING |
+	cap->capabilities |= (V4L2_CAP_STREAMING |
 			      V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_IO_MC);
 
 	ISP_PR_DBG("%s|capabilities=0x%X", ctx->vdev.name, cap->capabilities);
@@ -1112,18 +1110,18 @@ static int isp4_s_fmt_vid_cap(struct file *file, void *priv,
 		return ret;
 
 	ISP_PR_DBG("%s|width height:%ux%u->%ux%u\n",
-		    ctx->vdev.name,
-		    ctx->format.width, ctx->format.height,
-		    f->fmt.pix.width, f->fmt.pix.height);
+		   ctx->vdev.name,
+		   ctx->format.width, ctx->format.height,
+		   f->fmt.pix.width, f->fmt.pix.height);
 	ISP_PR_DBG("%s|pixelformat:0x%x-0x%x\n",
-		    ctx->vdev.name, ctx->format.pixelformat,
-		    f->fmt.pix.pixelformat);
+		   ctx->vdev.name, ctx->format.pixelformat,
+		   f->fmt.pix.pixelformat);
 	ISP_PR_DBG("%s|bytesperline:%u->%u\n",
-		    ctx->vdev.name, ctx->format.bytesperline,
-		    f->fmt.pix.bytesperline);
+		   ctx->vdev.name, ctx->format.bytesperline,
+		   f->fmt.pix.bytesperline);
 	ISP_PR_DBG("%s|sizeimage:%u->%u\n",
-		    ctx->vdev.name, ctx->format.sizeimage,
-		    f->fmt.pix.sizeimage);
+		   ctx->vdev.name, ctx->format.sizeimage,
+		   f->fmt.pix.sizeimage);
 
 	ctx->format = f->fmt.pix;
 
@@ -1183,7 +1181,7 @@ static int isp4_enum_fmt_vid_cap(struct file *file, void *priv,
 	}
 
 	ISP_PR_DBG("%s|index=%d, pixelformat=0x%X", ctx->vdev.name,
-		    f->index, f->pixelformat);
+		   f->index, f->pixelformat);
 
 	return 0;
 }
@@ -1198,7 +1196,7 @@ static int isp4_enum_framesizes(struct file *file, void *fh,
 		fsize->discrete = isp_frmsize[fsize->index];
 
 		ISP_PR_DBG("%s|size[%d]=%dx%d", ctx->vdev.name, fsize->index,
-			    fsize->discrete.width, fsize->discrete.height);
+			   fsize->discrete.width, fsize->discrete.height);
 	} else {
 		return -EINVAL;
 	}
@@ -1234,8 +1232,8 @@ static int isp4_ioctl_enum_frameintervals(struct file *file, void *priv,
 			       &fival->discrete.denominator, 8, 333);
 
 	ISP_PR_DBG("%s|interval[%d]=%d/%d", ctx->vdev.name, fival->index,
-		    fival->discrete.numerator,
-		    fival->discrete.denominator);
+		   fival->discrete.numerator,
+		   fival->discrete.denominator);
 
 	return 0;
 }
@@ -1253,8 +1251,8 @@ static int isp4_ioctl_g_parm(struct file *file, void *priv,
 	parm->parm.capture.readbuffers  = ctx->vdev.queue->min_queued_buffers;
 
 	ISP_PR_DBG("%s|timeperframe=%d/%d", ctx->vdev.name,
-		    parm->parm.capture.timeperframe.numerator,
-		    parm->parm.capture.timeperframe.denominator);
+		   parm->parm.capture.timeperframe.numerator,
+		   parm->parm.capture.timeperframe.denominator);
 	return 0;
 }
 
@@ -1376,7 +1374,7 @@ static int isp4_qops_queue_setup(struct vb2_queue *vq, unsigned int *nbuffers,
 	}
 
 	ISP_PR_DBG("%s|*nbuffers=%u *nplanes=%u sizes[0]=%u", ctx->vdev.name,
-		    *nbuffers, *nplanes, sizes[0]);
+		   *nbuffers, *nplanes, sizes[0]);
 
 	return 0;
 }
@@ -1397,7 +1395,7 @@ static int isp4_qops_buffer_prepare(struct vb2_buffer *vb)
 	struct isp4_video_dev *ctx = vb2_get_drv_priv(vb->vb2_queue);
 
 	ISP_PR_DBG("%s|index=%u, plane_size=%lu", ctx->vdev.name, vb->index,
-		    vb2_plane_size(vb, 0));
+		   vb2_plane_size(vb, 0));
 
 	return 0;
 }
@@ -1417,8 +1415,8 @@ static void isp4_qops_buffer_queue(struct vb2_buffer *vb)
 		struct sys_img_buf_info img_buf;
 
 		ISP_PR_DBG("amdgpu_buf:vaddr=%p gpu_addr=0x%llx size=%lu",
-			    priv_buf->vaddr, priv_buf->gpu_addr,
-			    priv_buf->size);
+			   priv_buf->vaddr, priv_buf->gpu_addr,
+			   priv_buf->size);
 
 		switch (ctx->format.pixelformat) {
 		case V4L2_PIX_FMT_NV12: {
@@ -1430,9 +1428,9 @@ static void isp4_qops_buffer_queue(struct vb2_buffer *vb)
 			img_buf.planes[0].mc_addr = priv_buf->gpu_addr;
 
 			ISP_PR_DBG("img_buf[0]:sys=%p mc=0x%llx size=%u",
-				    img_buf.planes[0].sys_addr,
-				    img_buf.planes[0].mc_addr,
-				    img_buf.planes[0].len);
+				   img_buf.planes[0].sys_addr,
+				   img_buf.planes[0].mc_addr,
+				   img_buf.planes[0].len);
 
 			img_buf.planes[1].len = uv_size;
 			img_buf.planes[1].sys_addr =
@@ -1440,9 +1438,9 @@ static void isp4_qops_buffer_queue(struct vb2_buffer *vb)
 			img_buf.planes[1].mc_addr = priv_buf->gpu_addr + y_size;
 
 			ISP_PR_DBG("img_buf[1]:sys=%p mc=0x%llx size=%u",
-				    img_buf.planes[1].sys_addr,
-				    img_buf.planes[1].mc_addr,
-				    img_buf.planes[1].len);
+				   img_buf.planes[1].sys_addr,
+				   img_buf.planes[1].mc_addr,
+				   img_buf.planes[1].len);
 
 			img_buf.planes[2].len = 0;
 		}
@@ -1453,9 +1451,9 @@ static void isp4_qops_buffer_queue(struct vb2_buffer *vb)
 			img_buf.planes[0].mc_addr = priv_buf->gpu_addr;
 
 			ISP_PR_DBG("img_buf[0]:sys=%p mc=0x%llx size=%u",
-				    img_buf.planes[0].sys_addr,
-				    img_buf.planes[0].mc_addr,
-				    img_buf.planes[0].len);
+				   img_buf.planes[0].sys_addr,
+				   img_buf.planes[0].mc_addr,
+				   img_buf.planes[0].len);
 
 			img_buf.planes[1].len = 0;
 			img_buf.planes[2].len = 0;
@@ -1518,62 +1516,72 @@ static int isp4_qops_start_streaming(struct vb2_queue *vq, unsigned int count)
 	struct vb2_amdisp_buf *priv_buf;
 	struct sys_img_buf_info img_buf;
 
-	list_for_each_entry_safe(isp_buf, tmp, &ctx->buf_list, list) {
-		/* get vb2_amdisp_buf */
-		priv_buf = isp_buf->vb2.vb2_buf.planes[0].mem_priv;
+	switch (ctx->format.pixelformat) {
+	case V4L2_PIX_FMT_NV12: {
+		u32 y_size = ctx->format.sizeimage / 3 * 2;
+		u32 uv_size = ctx->format.sizeimage / 3;
 
-		ISP_PR_DBG("amdgpu_buf:vaddr=%p gpu_addr=0x%llx size=%lu",
-			    priv_buf->vaddr, priv_buf->gpu_addr,
-			    priv_buf->size);
+		list_for_each_entry_safe(isp_buf, tmp, &ctx->buf_list, list) {
+			/* get vb2_amdisp_buf */
+			priv_buf = isp_buf->vb2.vb2_buf.planes[0].mem_priv;
 
-		switch (ctx->format.pixelformat) {
-		case V4L2_PIX_FMT_NV12: {
-			u32 y_size = ctx->format.sizeimage / 3 * 2;
-			u32 uv_size = ctx->format.sizeimage / 3;
+			ISP_PR_DBG("amdgpu_buf:vaddr=%p gpu_addr=0x%llx size=%lu",
+				   priv_buf->vaddr, priv_buf->gpu_addr,
+				   priv_buf->size);
 
 			img_buf.planes[0].len = y_size;
 			img_buf.planes[0].sys_addr = priv_buf->vaddr;
 			img_buf.planes[0].mc_addr = priv_buf->gpu_addr;
 
 			ISP_PR_DBG("img_buf[0]:sys=%p mc=0x%llx size=%u",
-				    img_buf.planes[0].sys_addr,
-				    img_buf.planes[0].mc_addr,
-				    img_buf.planes[0].len);
+				   img_buf.planes[0].sys_addr,
+				   img_buf.planes[0].mc_addr,
+				   img_buf.planes[0].len);
 
 			img_buf.planes[1].len = uv_size;
-			img_buf.planes[1].sys_addr =
-				(void *)((u64)priv_buf->vaddr + y_size);
+			img_buf.planes[1].sys_addr = (void *)((u64)priv_buf->vaddr + y_size);
 			img_buf.planes[1].mc_addr = priv_buf->gpu_addr + y_size;
 
 			ISP_PR_DBG("img_buf[1]:sys=%p mc=0x%llx size=%u",
-				    img_buf.planes[1].sys_addr,
-				    img_buf.planes[1].mc_addr,
-				    img_buf.planes[1].len);
+				   img_buf.planes[1].sys_addr,
+				   img_buf.planes[1].mc_addr,
+				   img_buf.planes[1].len);
 
 			img_buf.planes[2].len = 0;
+
+			set_stream_buf(CAMERA_PORT_0, stream_id, &img_buf);
 		}
-		break;
-		case V4L2_PIX_FMT_YUYV: {
+	}
+	break;
+	case V4L2_PIX_FMT_YUYV: {
+		list_for_each_entry_safe(isp_buf, tmp, &ctx->buf_list, list) {
+			/* get vb2_amdisp_buf */
+			priv_buf = isp_buf->vb2.vb2_buf.planes[0].mem_priv;
+
+			ISP_PR_DBG("amdgpu_buf:vaddr=%p gpu_addr=0x%llx size=%lu",
+				   priv_buf->vaddr, priv_buf->gpu_addr,
+				   priv_buf->size);
+
 			img_buf.planes[0].len = ctx->format.sizeimage;
 			img_buf.planes[0].sys_addr = priv_buf->vaddr;
 			img_buf.planes[0].mc_addr = priv_buf->gpu_addr;
 
 			ISP_PR_DBG("img_buf[0]:sys=%p mc=0x%llx size=%u",
-				    img_buf.planes[0].sys_addr,
-				    img_buf.planes[0].mc_addr,
-				    img_buf.planes[0].len);
+				   img_buf.planes[0].sys_addr,
+				   img_buf.planes[0].mc_addr,
+				   img_buf.planes[0].len);
 
 			img_buf.planes[1].len = 0;
 			img_buf.planes[2].len = 0;
-		}
-		break;
-		default:
-			ISP_PR_ERR("%s|unsupported fmt=0x%x",
-				   ctx->vdev.name, ctx->format.pixelformat);
-			return -EINVAL;
-		}
 
-		set_stream_buf(CAMERA_PORT_0, stream_id, &img_buf);
+			set_stream_buf(CAMERA_PORT_0, stream_id, &img_buf);
+		}
+	}
+	break;
+	default:
+		ISP_PR_ERR("%s|unsupported fmt=0x%x",
+			   ctx->vdev.name, ctx->format.pixelformat);
+		return -EINVAL;
 	}
 
 	/* Start the media pipeline */
@@ -1695,7 +1703,7 @@ static int isp4_add_subdevs(struct amd_cam *ctx)
 		mutex_init(&isp_vdev->vbq_lock);
 		q = &isp_vdev->vbq;
 		q->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-		q->io_modes = VB2_MMAP | VB2_USERPTR | VB2_READ | VB2_DMABUF;
+		q->io_modes = VB2_MMAP | VB2_DMABUF;
 		q->timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC;
 		q->buf_struct_size = sizeof(struct isp4_capture_buffer);
 		q->min_queued_buffers = 2;
@@ -1741,8 +1749,7 @@ static int isp4_add_subdevs(struct amd_cam *ctx)
 
 		vdev = &isp_vdev->vdev;
 		vdev->device_caps = V4L2_CAP_VIDEO_CAPTURE |
-				    V4L2_CAP_STREAMING | V4L2_CAP_READWRITE |
-				    V4L2_CAP_IO_MC;
+				    V4L2_CAP_STREAMING | V4L2_CAP_IO_MC;
 		vdev->entity.ops = &isp_vdev_ent_ops;
 		vdev->release = video_device_release_empty;
 		vdev->fops = &isp4_vdev_fops;
@@ -1876,8 +1883,8 @@ static int amd_capture_probe(struct platform_device *pdev)
 	ISP_PR_DBG("isp irq registration successful\n");
 
 	ISP_PR_DBG("%s, mmio %p cpuaddr %p, gpuaddr 0x%llx, len 0x%x\n",
-		    __func__, cam->isp_mmio, cam->pltf_data->cpu_ptr,
-		    cam->pltf_data->gpu_addr, cam->pltf_data->size);
+		   __func__, cam->isp_mmio, cam->pltf_data->cpu_ptr,
+		   cam->pltf_data->gpu_addr, cam->pltf_data->size);
 
 	ret = swisp_if_init(&cam->swisp_if, cam);
 	if (ret) {
@@ -2031,6 +2038,6 @@ MODULE_ALIAS("platform:" ISP_DRV_NAME);
 MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);
 MODULE_IMPORT_NS(DMA_BUF);
 
-MODULE_AUTHOR("atg.isp.fw <dl.atg.isp.fw@amd.com>");
+MODULE_AUTHOR("bin du <bin.du@amd.com>");
 MODULE_DESCRIPTION("AMD ISP4 Driver");
 MODULE_LICENSE("GPL v2");

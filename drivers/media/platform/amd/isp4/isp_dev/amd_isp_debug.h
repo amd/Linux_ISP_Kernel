@@ -35,11 +35,11 @@
 			dev_err(g_isp_log.dev, "[E]%s[%s][%d]:"			\
 			format, LOG_TAG, __func__, __LINE__, ##__VA_ARGS__)	\
 
-#define ISP_PR_WARN(format, ...) 						\
+#define ISP_PR_WARN(format, ...)						\
 			dev_warn(g_isp_log.dev, "[W]%s[%s][%d]:"		\
 			format, LOG_TAG, __func__, __LINE__, ##__VA_ARGS__)	\
 
-#define ISP_PR_INFO(format, ...) 						\
+#define ISP_PR_INFO(format, ...)						\
 			dev_info(g_isp_log.dev, "[I]%s[%s][%d]:"		\
 			format, LOG_TAG, __func__, __LINE__, ##__VA_ARGS__)	\
 
@@ -74,7 +74,9 @@ void isp_fw_log_print(struct isp_context *isp);
 struct isp_log_info {
 	struct device *dev;
 };
+
 extern struct isp_log_info g_isp_log;
+
 void init_dev_log(struct device *dev);
 
 void isp_dbg_show_map_info(void *p);

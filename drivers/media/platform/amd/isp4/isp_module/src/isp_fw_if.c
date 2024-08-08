@@ -292,7 +292,7 @@ struct isp_cmd_element *isp_rm_cmd_from_cmdq(struct isp_context *isp,
 quit:
 	if (curr_element && curr_element->evt && signal_evt) {
 		ISP_PR_DBG("%s: signal event %p\n",
-			    __func__, curr_element->evt);
+			   __func__, curr_element->evt);
 		isp_event_signal(0, curr_element->evt);
 	}
 	isp_mutex_unlock(&isp->cmd_q_mtx);
@@ -465,7 +465,7 @@ void isp_init_fw_ring_buf(struct isp_context *isp,
 	}
 
 	ISP_PR_DBG("init %s ringbuf %u, mc 0x%llx(%u)",
-		    cmd ? "cmd" : "resp", idx, mc, len);
+		   cmd ? "cmd" : "resp", idx, mc, len);
 
 	isp_split_addr64(mc, &lo, &hi);
 
@@ -478,9 +478,9 @@ void isp_init_fw_ring_buf(struct isp_context *isp,
 	ISP_PR_DBG("rreg(0x%x)=0x%x", rreg, isp_reg_read(rreg));
 	ISP_PR_DBG("wreg(0x%x)=0x%x", wreg, isp_reg_read(wreg));
 	ISP_PR_DBG("baselo_reg(0x%x)=0x%x",
-		    baselo_reg, isp_reg_read(baselo_reg));
+		   baselo_reg, isp_reg_read(baselo_reg));
 	ISP_PR_DBG("basehi_reg(0x%x)=0x%x",
-		    basehi_reg, isp_reg_read(basehi_reg));
+		   basehi_reg, isp_reg_read(basehi_reg));
 	ISP_PR_DBG("size_reg(0x%x)=0x%x", size_reg, isp_reg_read(size_reg));
 }
 

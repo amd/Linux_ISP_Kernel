@@ -73,7 +73,7 @@ void isp_fw_indirect_cmd_pl_buf_init(struct isp_fw_work_buf_mgr *mgr,
 
 	isp_mutex_init(&mgr->mutex);
 	ISP_PR_DBG("-> %s, sys 0x%llx,mc 0x%llx,len %u\n", __func__,
-		    sys_addr, mc_addr, len);
+		   sys_addr, mc_addr, len);
 	pkg_size = mgr->pay_load_pkg_size;
 
 	base_sys = sys_addr;

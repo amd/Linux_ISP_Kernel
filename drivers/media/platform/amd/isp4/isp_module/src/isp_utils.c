@@ -103,7 +103,7 @@ bool get_available_fw_cmdresp_stream_id(void *context, enum camera_port_id cam_i
 			p_fwstr_info->status = FW_CMD_RESP_STR_STATUS_OCCUPIED;
 			p_fwstr_info->cid_owner = actual_cid;
 			ISP_PR_DBG("%s, cid[%d], fw stream_id: %d\n", __func__,
-				    cam_id, idx);
+				   cam_id, idx);
 			ret = true;
 			break;
 		}
@@ -214,7 +214,7 @@ enum fw_cmd_resp_stream_id isp_get_fwresp_stream_id(struct isp_context *isp,
 	fw_stream_id = sensor_info->fw_stream_id;
 
 	ISP_PR_DBG("-><- %s actual_cid:%d[stream%d] the related fw stream_id:%d\n",
-		    __func__, actual_cid, stream_id, fw_stream_id);
+		   __func__, actual_cid, stream_id, fw_stream_id);
 
 	return fw_stream_id;
 }
@@ -232,7 +232,7 @@ enum fw_cmd_resp_stream_id isp_get_fw_stream_id(struct isp_context *isp,
 
 	sensor_info = &isp->sensor_info[cid];
 	ISP_PR_DBG("-> %s cid:%d, camtype %u\n", __func__,
-		    cid, sensor_info->cam_type);
+		   cid, sensor_info->cam_type);
 
 	fw_stream_id = sensor_info->fw_stream_id;
 	if (fw_stream_id != FW_CMD_RESP_STREAM_ID_MAX &&

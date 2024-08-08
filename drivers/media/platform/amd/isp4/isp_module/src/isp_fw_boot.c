@@ -85,11 +85,9 @@ int isp_boot_fw_init(struct isp_context *isp)
 			isp_gpu_mem_alloc(log_len);
 
 		if (isp->fw_running_buf) {
-			ISP_PR_DBG("size %u, allocate gpu mem suc",
-				    log_len);
+			ISP_PR_DBG("size %u, allocate gpu mem suc", log_len);
 		} else {
-			ISP_PR_ERR("size %u, fail to allocate gpu mem",
-				   log_len);
+			ISP_PR_ERR("size %u, fail to allocate gpu mem", log_len);
 			return RET_OUTOFMEM;
 		}
 	}
@@ -126,11 +124,9 @@ int isp_boot_cmd_resp_rb_init(struct isp_context *isp)
 		isp->fw_cmd_resp_buf =
 			isp_gpu_mem_alloc(total_size);
 		if (isp->fw_cmd_resp_buf) {
-			ISP_PR_DBG("size %u, allocate gpu mem suc",
-				    total_size);
+			ISP_PR_DBG("size %u, allocate gpu mem suc", total_size);
 		} else {
-			ISP_PR_ERR("size %u, fail to allocate gpu mem",
-				   total_size);
+			ISP_PR_ERR("size %u, fail to allocate gpu mem", total_size);
 			return RET_OUTOFMEM;
 		}
 	}

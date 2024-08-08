@@ -52,25 +52,6 @@
 
 static struct isp_fw_resp_thread_para isp_resp_para[MAX_REAL_FW_RESP_STREAM_NUM];
 
-static enum isp_aspect_ratio get_aspect_ratio(u32 width, u32 height)
-{
-	/*
-	 * for 16:9, width * 1000 / height = 1777
-	 * middle value of 16:9 and 16:10 are (1777 + 1600) = 1688
-	 * for 16:10, width * 1000 / height = 1600
-	 * middle value of 16:10 and 4:3 are (1600 + 1333) = 1466
-	 * for 4:3, width * 1000 / height = 1333
-	 */
-	u32 div = width * 1000 / height;
-
-	if (div <= 1466)
-		return ISP_ASPECT_RATIO_4_3;
-	else if (div <= 1688)
-		return ISP_ASPECT_RATIO_16_10;
-	else
-		return ISP_ASPECT_RATIO_16_9;
-}
-
 static struct isp_mapped_buf_info *
 isp_preview_done(struct isp_context *isp, enum camera_port_id cid,
 		 struct meta_info_t *meta, struct frame_done_cb_para *pcb)
@@ -312,7 +293,7 @@ static void resend_meta_in_framedone(struct isp_context *isp,
 			 meta_info_mc);
 		} else {
 			ISP_PR_DBG("%s(%u), resend meta_info 0x%llx\n",
-				    __func__, cid, meta_info_mc);
+				   __func__, cid, meta_info_mc);
 		}
 	}
 
@@ -333,7 +314,7 @@ static void resend_meta_in_framedone(struct isp_context *isp,
 			isp_fw_ret_indirect_cmd_pl(&isp->fw_indirect_cmd_pl_buf_mgr, meta_data_mc);
 		} else {
 			ISP_PR_DBG("%s(%u), resend metaData 0x%llx\n",
-				    __func__, cid, meta_data_mc);
+				   __func__, cid, meta_data_mc);
 		}
 	}
 }
@@ -367,7 +348,7 @@ void isp_fw_resp_cmd_done_extra(struct isp_context *isp,
 		rev = (ver & FW_VERSION_BUILD_MASK) >> FW_VERSION_BUILD_SHIFT;
 		isp->isp_fw_ver = ver;
 		ISP_PR_DBG("fw version,maj:min:rev:sub %u:%u:%u\n", major,
-			    minor, rev);
+			   minor, rev);
 		if (major != FW_VERSION_MAJOR) {
 			ISP_PR_ERR("fw major mismatch, expect %u\n",
 				   FW_VERSION_MAJOR);
@@ -381,7 +362,7 @@ void isp_fw_resp_cmd_done_extra(struct isp_context *isp,
 		break;
 	case CMD_ID_SET_3A_ROI:
 		ISP_PR_DBG("%s cmd_done (0x%x) for cid:%d\n", __func__,
-			    para->cmd_id, cid);
+			   para->cmd_id, cid);
 		struct cmd_done_cb_para cmd_cd_param;
 
 		memset(&cmd_cd_param, 0, sizeof(struct cmd_done_cb_para));
@@ -442,9 +423,9 @@ void isp_fw_resp_cmd_done(struct isp_context *isp,
 		}
 
 		ISP_PR_DBG("-><- cid %u, stream %d,cmd %s(0x%08x)(%d),seq %u\n",
-			    cid, fw_stream_id,
-			    isp_dbg_get_cmd_str(para->cmd_id),
-			    para->cmd_id, para->cmd_status, para->cmd_seq_num);
+			   cid, fw_stream_id,
+			   isp_dbg_get_cmd_str(para->cmd_id),
+			   para->cmd_id, para->cmd_status, para->cmd_seq_num);
 
 		if (para->cmd_status == 0) {
 			isp_fw_resp_cmd_done_extra(isp, cid, para, ele);
@@ -515,8 +496,8 @@ void isp_fw_resp_frame_done(struct isp_context *isp,
 	memcpy(&pcb->meta_info, meta, sizeof(struct meta_info_t));
 
 	ISP_PR_DBG("%s,ts:%llu,cameraId:%d,streamId:%d,poc:%u,preview_en:%u,%s(%i)\n",
-		    __func__, ktime_get_ns(), cid, fw_stream_id, meta->poc,
-		    meta->preview.enabled,
+		   __func__, ktime_get_ns(), cid, fw_stream_id, meta->poc,
+		   meta->preview.enabled,
 		    isp_dbg_get_buf_done_str(meta->preview.status),
 		    meta->preview.status);
 

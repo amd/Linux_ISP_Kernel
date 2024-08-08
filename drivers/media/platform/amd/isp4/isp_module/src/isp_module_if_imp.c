@@ -59,7 +59,7 @@ void isp_pwr_unit_init(struct isp_pwr_unit *unit)
 	}
 }
 
-static void EnableAGPIO85(bool_t high)
+static void enable_agpio85(bool_t high)
 {
 	uint32 prev_val;
 	uint32 val;
@@ -231,19 +231,19 @@ enum imf_ret_value open_camera_imp(void *context,
 	if (isp->sensor_info[actual_cid].sensor_opened ||
 	    isp->sensor_info[cid].sensor_opened) {
 		ISP_PR_DBG("<- %s cid[%d] has opened, do nothing\n",
-			    __func__, actual_cid);
+			   __func__, actual_cid);
 		isp_mutex_unlock(&isp->ops_mutex);
 		return IMF_RET_SUCCESS;
 	}
 	if (is_camera_started(isp, actual_cid)) {
 		isp_mutex_unlock(&isp->ops_mutex);
 		ISP_PR_DBG("<- %s cid[%d] suc for already\n",
-			    __func__, actual_cid);
+			   __func__, actual_cid);
 		return IMF_RET_SUCCESS;
 	}
 
 	ISP_PR_DBG("enable AGPIO85\n");
-	EnableAGPIO85(true);
+	enable_agpio85(true);
 
 	if (isp->fw_mem_pool[cid] && isp->fw_mem_pool[cid]->sys_addr &&
 	    isp->fw_mem_pool[cid]->mem_size < INTERNAL_MEMORY_POOL_SIZE) {
@@ -376,7 +376,7 @@ enum imf_ret_value close_camera_imp(void *context, enum camera_port_id cid)
 	isp->fw_running_buf = NULL;
 
 	ISP_PR_DBG("disable AGPIO85 and delay 20ms\n");
-	EnableAGPIO85(false);
+	enable_agpio85(false);
 	msleep(20);
 suc:
 	isp_mutex_unlock(&isp->ops_mutex);
@@ -404,7 +404,7 @@ result_t isp_setup_fw_mem_pool(struct isp_context *isp,
 	}
 
 	ISP_PR_DBG("-> %s, cid %u, fwStreamId %u\n", __func__,
-		    cam_id, fw_stream_id);
+		   cam_id, fw_stream_id);
 	if (!isp->fw_mem_pool[cam_id]) {
 		isp->fw_mem_pool[cam_id] =
 			isp_gpu_mem_alloc(INTERNAL_MEMORY_POOL_SIZE);
@@ -435,7 +435,7 @@ result_t isp_setup_fw_mem_pool(struct isp_context *isp,
 		return RET_FAILURE;
 	}
 	ISP_PR_DBG("<- %s, send BUFFER_TYPE_MEM_POOL 0x%llx(%u) suc\n",
-		    __func__, isp->fw_mem_pool[cam_id]->gpu_mc_addr,
+		   __func__, isp->fw_mem_pool[cam_id]->gpu_mc_addr,
 		    buf_type.buffer.buf_size_a);
 	return RET_SUCCESS;
 };
@@ -476,8 +476,7 @@ result_t isp_alloc_fw_drv_shared_buf(struct isp_context *isp,
 	sensor_info = &isp->sensor_info[cam_id];
 
 	ISP_PR_DBG("-> %s, cid %u,fw_cmd_resp_stream_id:%d\n", __func__,
-		    cam_id,
-		    fw_stream_id);
+		   cam_id, fw_stream_id);
 
 	for (i = 0; i < STREAM_META_BUF_COUNT; i++) {
 		size = META_INFO_BUF_SIZE;
@@ -539,8 +538,7 @@ void isp_free_fw_drv_shared_buf(struct isp_context *isp,
 	sensor_info = &isp->sensor_info[cam_id];
 
 	ISP_PR_DBG("-> %s, cid %u,fw_cmd_resp_stream_id:%d\n", __func__,
-		    cam_id,
-		    fw_stream_id);
+		   cam_id, fw_stream_id);
 
 	for (i = 0; i < STREAM_META_BUF_COUNT; i++) {
 		if (stream_info->meta_info_buf[i]) {
@@ -565,11 +563,9 @@ void isp_free_fw_drv_shared_buf(struct isp_context *isp,
 result_t isp_init_stream(struct isp_context *isp, enum camera_port_id cam_id,
 			 enum fw_cmd_resp_stream_id fw_stream_id)
 {
-	ISP_PR_DBG("-> %s, cid:%d, fw streamID: %d\n", __func__, cam_id,
-		    fw_stream_id);
+	ISP_PR_DBG("-> %s, cid:%d, fw streamID: %d\n", __func__, cam_id, fw_stream_id);
 	if (!is_para_legal(isp, cam_id)) {
-		ISP_PR_ERR
-		("<- %s,fail, bad para,cid:%d\n", __func__, cam_id);
+		ISP_PR_ERR("<- %s,fail, bad para,cid:%d\n", __func__, cam_id);
 		return RET_FAILURE;
 	}
 
@@ -633,8 +629,6 @@ result_t isp_uninit_stream(struct isp_context *isp, enum camera_port_id cam_id,
 	struct isp_sensor_info *snr_info;
 	uint32 i;
 	struct isp_cmd_element *ele = NULL;
-	uint32 cmd;
-	uint32 timeout;
 	uint32 out_cnt;
 
 	if (!is_para_legal(isp, cam_id)) {
@@ -665,7 +659,7 @@ result_t isp_uninit_stream(struct isp_context *isp, enum camera_port_id cam_id,
 	isp->fw_cmd_resp_strs_info[fw_stream_id].status =
 		FW_CMD_RESP_STR_STATUS_OCCUPIED;
 	ISP_PR_DBG("%s: reset fw stream_id %d to be occupied\n", __func__,
-		    fw_stream_id);
+		   fw_stream_id);
 
 	isp_reset_camera_info(isp, cam_id);
 	snr_info = &isp->sensor_info[cam_id];
@@ -876,10 +870,10 @@ result_t isp_set_stream_path(struct isp_context *isp, enum camera_port_id cid,
 
 	stream_path_cmd.stream_cfg.b_enable_tnr = true;
 	ISP_PR_DBG("cid %u,stream %d, sensor_id %d, pipeId 0x%x EnableTnr %u\n",
-		    cid, fw_stream_id,
-		    stream_path_cmd.stream_cfg.mipi_pipe_path_cfg.sensor_id,
-		    stream_path_cmd.stream_cfg.isp_pipe_path_cfg.isp_pipe_id,
-		    stream_path_cmd.stream_cfg.b_enable_tnr);
+		   cid, fw_stream_id,
+		   stream_path_cmd.stream_cfg.mipi_pipe_path_cfg.sensor_id,
+		   stream_path_cmd.stream_cfg.isp_pipe_path_cfg.isp_pipe_id,
+		   stream_path_cmd.stream_cfg.b_enable_tnr);
 
 	ret = isp_send_fw_cmd(isp, CMD_ID_SET_STREAM_CONFIG, fw_stream_id,
 			      FW_CMD_PARA_TYPE_DIRECT,
@@ -1006,7 +1000,7 @@ result_t isp_send_meta_buf(struct isp_context *isp, enum camera_port_id cid,
 	}
 	if (cnt) {
 		ISP_PR_DBG("-><- %s, cid %u, %u meta sent suc\n", __func__,
-			    cid, cnt);
+			   cid, cnt);
 		return RET_SUCCESS;
 	}
 
@@ -1034,11 +1028,10 @@ result_t isp_kickoff_stream(struct isp_context *isp,
 
 	if (sif->status == START_STATUS_STARTED) {
 		ISP_PR_DBG("-><- %s suc, do none for already started\n",
-			    __func__);
+			   __func__);
 		return RET_SUCCESS;
 	} else if (sif->status == START_STATUS_START_FAIL) {
-		ISP_PR_ERR
-		("-><- %s fail for start fail before\n", __func__);
+		ISP_PR_ERR("-><- %s fail for start fail before\n", __func__);
 		return RET_FAILURE;
 	}
 
@@ -1066,8 +1059,8 @@ result_t isp_kickoff_stream(struct isp_context *isp,
 		ISP_PR_WARN("failed to config prefetch\n");
 	} else {
 		ISP_PR_DBG("config prefetch %d:%d suc\n",
-			    prefetch.b_rtpipe,
-			    prefetch.b_soft_rtpipe);
+			   prefetch.b_rtpipe,
+			   prefetch.b_soft_rtpipe);
 	}
 
 	if (!sif->start_str_cmd_sent && sif->channel_buf_sent_cnt >=
@@ -1250,15 +1243,15 @@ result_t isp_setup_output(struct isp_context *isp, enum camera_port_id cid,
 	}
 
 	ISP_PR_DBG("%s,cid %d, stream %d\n", __func__,
-		    cid, fw_stream_id);
+		   cid, fw_stream_id);
 
 	ISP_PR_DBG("in %s,channel:%s,fmt %s,w:h=%u:%u,lp:%u,cp%u\n",
-		    __func__,
-		    isp_dbg_get_out_ch_str(cmd_ch_prop.ch),
-		    isp_dbg_get_out_fmt_str(cmd_ch_prop.image_prop.image_format),
-		    cmd_ch_prop.image_prop.width, cmd_ch_prop.image_prop.height,
-		    cmd_ch_prop.image_prop.luma_pitch,
-		    cmd_ch_prop.image_prop.chroma_pitch);
+		   __func__,
+		   isp_dbg_get_out_ch_str(cmd_ch_prop.ch),
+		   isp_dbg_get_out_fmt_str(cmd_ch_prop.image_prop.image_format),
+		   cmd_ch_prop.image_prop.width, cmd_ch_prop.image_prop.height,
+		   cmd_ch_prop.image_prop.luma_pitch,
+		   cmd_ch_prop.image_prop.chroma_pitch);
 
 	if (isp_send_fw_cmd(isp, CMD_ID_SET_OUT_CHAN_PROP,
 			    fw_stream_id,
@@ -1281,7 +1274,7 @@ result_t isp_setup_output(struct isp_context *isp, enum camera_port_id cid,
 	}
 
 	ISP_PR_DBG("%s,enable channel %s\n",
-		    __func__, isp_dbg_get_out_ch_str(cmd_ch_en.ch));
+		   __func__, isp_dbg_get_out_ch_str(cmd_ch_en.ch));
 
 	if (!sen_info->start_str_cmd_sent) {
 		if (isp_kickoff_stream(isp, cid, fw_stream_id,
@@ -1290,17 +1283,15 @@ result_t isp_setup_output(struct isp_context *isp, enum camera_port_id cid,
 			ISP_PR_ERR("%s, kickoff stream fail\n",
 				   __func__);
 			return RET_FAILURE;
+		}
+
+		if (sen_info->start_str_cmd_sent) {
+			sen_info->status = START_STATUS_STARTED;
+			sif->start_status = START_STATUS_STARTED;
+			ISP_PR_DBG("kickoff stream suc:STARTED\n");
 		} else {
-			if (sen_info->start_str_cmd_sent) {
-				sen_info->status = START_STATUS_STARTED;
-				sif->start_status = START_STATUS_STARTED;
-				ISP_PR_DBG("kickoff stream suc:START_STATUS_STARTED\n");
-			}
-			else
-			{
-				ISP_PR_DBG("kickoff stream suc\n");
-			}
-		};
+			ISP_PR_DBG("kickoff stream suc\n");
+		}
 	} else {
 		ISP_PR_DBG("%s,stream running, no need kickoff\n", __func__);
 		sif->start_status = START_STATUS_STARTED;
@@ -1358,13 +1349,13 @@ enum imf_ret_value start_stream_imp(void *context,
 	    fw_stream_id >= FW_CMD_RESP_STREAM_ID_MAX) {
 		ISP_PR_ERR
 		("-><- fw_stream_id is illegal value, bad para, fw_stream_id: %d\n",
-		 fw_stream_id);
+		fw_stream_id);
 		ret = RET_FAILURE;
 		goto quit;
 	}
 
 	ISP_PR_DBG("-> isp_start_stream cid:%d, str:%d, fw stream id: %d\n",
-		    cam_id, stream_id, fw_stream_id);
+		   cam_id, stream_id, fw_stream_id);
 
 	if (isp_init_stream(isp, cam_id, fw_stream_id) != RET_SUCCESS) {
 		ISP_PR_ERR
@@ -1465,7 +1456,7 @@ enum imf_ret_value stop_stream_imp(void *context,
 	}
 
 	ISP_PR_DBG("-> %s,cid:%d,str:%d,status %i\n",
-		    __func__, cid, sid, sif->start_status);
+		   __func__, cid, sid, sif->start_status);
 
 	if (sif->start_status == START_STATUS_NOT_START)
 		goto goon;
@@ -1502,20 +1493,17 @@ enum imf_ret_value stop_stream_imp(void *context,
 					    fw_stream_id, FW_CMD_PARA_TYPE_DIRECT,
 					    &cmd_ch_disable, sizeof(cmd_ch_disable),
 					    300,
-					    NULL, NULL)))
+					    NULL, NULL))) {
 #else /* <DO_SYNCHRONIZED_STOP_STREAM> */
 	if (is_failure(isp_send_fw_cmd(isp,
 				       CMD_ID_ENABLE_OUT_CHAN,
 				       fw_stream_id, FW_CMD_PARA_TYPE_DIRECT,
 				       &cmd_ch_disable,
-				       sizeof(cmd_ch_disable))))
+				       sizeof(cmd_ch_disable)))) {
 #endif /* <DO_SYNCHRONIZED_STOP_STREAM> */
-	{
-		ISP_PR_ERR("%s,send disable str fail\n",
-			   __func__);
+		ISP_PR_ERR("%s,send disable str fail\n", __func__);
 	} else {
-		ISP_PR_DBG("%s wait disable suc\n",
-			    __func__);
+		ISP_PR_DBG("%s wait disable suc\n", __func__);
 	}
 
 #ifdef DO_SYNCHRONIZED_STOP_STREAM
@@ -1635,22 +1623,22 @@ result_t isp_set_stream_data_fmt(struct isp_context *isp_context,
 	if (sif->start_status == START_STATUS_NOT_START) {
 		sif->format = img_fmt;
 		ISP_PR_DBG("-><- %s suc,cid %d,str %d,fmt %s\n",
-			    __func__, cam_id, stream_type,
-			    isp_dbg_get_pvt_fmt_str(img_fmt));
+			   __func__, cam_id, stream_type,
+			   isp_dbg_get_pvt_fmt_str(img_fmt));
 		return RET_SUCCESS;
 	}
 
 	if (sif->format == img_fmt) {
 		ISP_PR_DBG("-><- %s suc,cid%d,str%d,fmt%s,do none\n",
-			    __func__, cam_id, stream_type,
-			    isp_dbg_get_pvt_fmt_str(img_fmt));
+			   __func__, cam_id, stream_type,
+			   isp_dbg_get_pvt_fmt_str(img_fmt));
 		sif->format = img_fmt;
 		return RET_SUCCESS;
 	}
 	ISP_PR_ERR("-><- %s fail,cid%d,str%d,fmt%s,bad stat%d\n",
-		    __func__, cam_id, stream_type,
-		    isp_dbg_get_pvt_fmt_str(img_fmt),
-		    sif->start_status);
+		   __func__, cam_id, stream_type,
+		   isp_dbg_get_pvt_fmt_str(img_fmt),
+		   sif->start_status);
 	return RET_FAILURE;
 }
 
@@ -1689,8 +1677,8 @@ result_t isp_set_str_res_fps_pitch(struct isp_context *isp_context,
 
 	sif = &isp_context->sensor_info[cam_id].str_info[stream_type];
 	ISP_PR_DBG("-> %s,cid%d,sid%d,lp%d,cp%d,w:%d,h:%d,fpsId:%d,strSta %u,chaSta %u\n",
-		    __func__, cam_id, stream_type, luma_pitch, chroma_pitch, width, height,
-		    fps, isp_context->sensor_info[cam_id].status, sif->start_status);
+		   __func__, cam_id, stream_type, luma_pitch, chroma_pitch, width, height,
+		   fps, isp_context->sensor_info[cam_id].status, sif->start_status);
 
 	if (sif->start_status == START_STATUS_NOT_START) {
 		sif->width = width;
@@ -1755,8 +1743,8 @@ enum imf_ret_value set_stream_para_imp(void *context,
 
 	isp_mutex_lock(&isp->ops_mutex);
 	ISP_PR_DBG("-> %s,cid %d,sid %d,para %s(%d)\n",
-		    __func__, cam_id, stream_id,
-		    isp_dbg_get_para_str(para_type), para_type);
+		   __func__, cam_id, stream_id,
+		   isp_dbg_get_para_str(para_type), para_type);
 
 	switch (para_type) {
 	case PARA_ID_DATA_FORMAT: {
@@ -1772,7 +1760,7 @@ enum imf_ret_value set_stream_para_imp(void *context,
 			break;
 		}
 		ISP_PR_DBG("<- %s(FMT) suc set fmt:%s\n", __func__,
-			    isp_dbg_get_pvt_fmt_str(data_fmat));
+			   isp_dbg_get_pvt_fmt_str(data_fmat));
 		break;
 	}
 	case PARA_ID_DATA_RES_FPS_PITCH: {
@@ -1819,9 +1807,9 @@ enum imf_ret_value set_stream_buf_imp(void *context, enum camera_port_id cam_id,
 
 	isp_mutex_lock(&isp->ops_mutex);
 	ISP_PR_DBG("cid[%d] sid[%d] %p(%u)",
-		    cam_id, stream_id,
-		    buf_hdl->planes[0].sys_addr,
-		    buf_hdl->planes[0].len);
+		   cam_id, stream_id,
+		   buf_hdl->planes[0].sys_addr,
+		   buf_hdl->planes[0].len);
 	if (ISP_GET_STATUS(isp) < ISP_STATUS_FW_RUNNING) {
 		ISP_PR_ERR("fail fsm %d", ISP_GET_STATUS(isp));
 		isp_mutex_unlock(&isp->ops_mutex);
@@ -1865,13 +1853,14 @@ enum imf_ret_value set_stream_buf_imp(void *context, enum camera_port_id cam_id,
 				return RET_FAILURE;
 			}
 			isp->sensor_info[cam_id].start_str_cmd_sent = 1;
-			isp->sensor_info[cam_id].str_info[stream_id].start_status = START_STATUS_STARTED;
+			isp->sensor_info[cam_id].str_info[stream_id].start_status =
+								START_STATUS_STARTED;
 			isp->sensor_info[cam_id].status = START_STATUS_STARTED;
 		} else {
 			ISP_PR_DBG
 			("no send START_STREAM, start_sent %u, buf_sent %u\n",
-			 isp->sensor_info[cam_id].start_str_cmd_sent,
-			 isp->sensor_info[cam_id].channel_buf_sent_cnt);
+			isp->sensor_info[cam_id].start_str_cmd_sent,
+			isp->sensor_info[cam_id].channel_buf_sent_cnt);
 		}
 	}
 
@@ -1923,7 +1912,7 @@ enum imf_ret_value set_roi_imp(void *context,
 	}
 
 	ISP_PR_DBG("-> %s cid %u type %u(1:AE 2:AWB 4:AF),kind %u(1:Touch 2:Face)\n",
-		    __func__, cam_id, type, roi->kind);
+		   __func__, cam_id, type, roi->kind);
 
 	if (type & ISP_3A_TYPE_AF)
 		roi_param->roi_type |= ROI_TYPE_MASK_AF;
@@ -1949,10 +1938,10 @@ enum imf_ret_value set_roi_imp(void *context,
 		des->touch_weight = src->weight;
 
 		ISP_PR_DBG("touch %u/%u, top(%u:%u),bottom(%u:%u),weight %u\n",
-			    i, roi_param->touch_info.touch_num,
-			    des->points.top_left.x, des->points.top_left.y,
-			    des->points.bottom_right.x,
-			    des->points.bottom_right.y, des->touch_weight);
+			   i, roi_param->touch_info.touch_num,
+			   des->points.top_left.x, des->points.top_left.y,
+			   des->points.bottom_right.x,
+			   des->points.bottom_right.y, des->touch_weight);
 	}
 
 	roi_param->fd_info.is_enabled = roi->fd_info.is_enabled;
@@ -2017,7 +2006,8 @@ enum imf_ret_value set_roi_imp(void *context,
 	if (is_failure(isp_send_fw_cmd(isp, fw_cmd, fw_stream_id,
 				       FW_CMD_PARA_TYPE_INDIRECT,
 				       &roi_param, sizeof(roi_param)))) {
-		ISP_PR_ERR("<- %s: failed by send cmd for fw_stream_id:%d\n", __func__, fw_stream_id);
+		ISP_PR_ERR("<- %s: failed by send cmd for fw_stream_id:%d\n",
+			   __func__, fw_stream_id);
 		kfree(roi_param);
 		return IMF_RET_FAIL;
 	}
@@ -2061,7 +2051,7 @@ int ispm_if_init(struct isp_module_if *intf, struct amd_cam *pamd_cam)
 	context->amd_cam = pamd_cam;
 	ispm_if_self = intf;
 	ISP_PR_DBG("-><- %s context:%p amd_cam:%p\n",
-		    __func__, intf->context, context->amd_cam);
+		   __func__, intf->context, context->amd_cam);
 
 	return OK;
 }

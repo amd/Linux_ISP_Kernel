@@ -187,11 +187,11 @@ void isp_dbg_show_map_info(void *in /* struct isp_mapped_buf_info */)
 		return;
 
 	ISP_PR_DBG("y sys:mc:len %llx:%llx:%u\n", p->y_map_info.sys_addr,
-		    p->y_map_info.mc_addr, p->y_map_info.len);
+		   p->y_map_info.mc_addr, p->y_map_info.len);
 	ISP_PR_DBG("u sys:mc:len %llx:%llx:%u\n", p->u_map_info.sys_addr,
-		    p->u_map_info.mc_addr, p->u_map_info.len);
+		   p->u_map_info.mc_addr, p->u_map_info.len);
 	ISP_PR_DBG("v sys:mc:len %llx:%llx:%u\n", p->v_map_info.sys_addr,
-		    p->v_map_info.mc_addr, p->v_map_info.len);
+		   p->v_map_info.mc_addr, p->v_map_info.len);
 };
 
 char *isp_dbg_get_buf_src_str(u32 src)
@@ -290,16 +290,16 @@ void isp_dbg_show_bufmeta_info(char *pre, u32 cid, void *in, void *orig_buf)
 	orig = (struct sys_img_buf_info *)orig_buf;
 
 	ISP_PR_DBG("%s(%s)%u en:%d,stat:%s(%u),src:%s\n", pre,
-		    isp_dbg_get_img_fmt_str(&p->image_prop.image_format), cid,
-		    p->enabled, isp_dbg_get_buf_done_str(p->status), p->status,
-		    isp_dbg_get_buf_src_str(p->source));
+		   isp_dbg_get_img_fmt_str(&p->image_prop.image_format), cid,
+		   p->enabled, isp_dbg_get_buf_done_str(p->status), p->status,
+		   isp_dbg_get_buf_src_str(p->source));
 
 	ISP_PR_DBG("%p,0x%llx(%u) %p,0x%llx(%u) %p,0x%llx(%u)\n",
-		    orig->planes[0].sys_addr, orig->planes[0].mc_addr,
-		    orig->planes[0].len, orig->planes[1].sys_addr,
-		    orig->planes[1].mc_addr, orig->planes[1].len,
-		    orig->planes[2].sys_addr, orig->planes[2].mc_addr,
-		    orig->planes[2].len);
+		   orig->planes[0].sys_addr, orig->planes[0].mc_addr,
+		   orig->planes[0].len, orig->planes[1].sys_addr,
+		   orig->planes[1].mc_addr, orig->planes[1].len,
+		   orig->planes[2].sys_addr, orig->planes[2].mc_addr,
+		   orig->planes[2].len);
 }
 
 void isp_dbg_show_img_prop(char *pre, void *in /* struct _image_prop_t * */)
@@ -307,8 +307,8 @@ void isp_dbg_show_img_prop(char *pre, void *in /* struct _image_prop_t * */)
 	struct image_prop_t *p = (struct image_prop_t *)in;
 
 	ISP_PR_DBG("%s fmt:%s(%d),w:h(%d:%d),lp:cp(%d:%d)\n", pre,
-		    isp_dbg_get_out_fmt_str(p->image_format), p->image_format,
-		    p->width, p->height, p->luma_pitch, p->chroma_pitch);
+		   isp_dbg_get_out_fmt_str(p->image_format), p->image_format,
+		   p->width, p->height, p->luma_pitch, p->chroma_pitch);
 };
 
 char *isp_dbg_get_out_fmt_str(int fmt /* enum enum _image_format_t */)

@@ -89,8 +89,9 @@ void isp_get_clks(struct isp_context *isp, enum camera_port_id cid,
 		*sclk_mhz = isp_v4_1_1_dpm_value[dpm].soc_clk;
 
 	ISP_PR_DBG("dpm %u,xclk %u,iclk %u,soc_clk %u\n",
-		    dpm, isp_v4_1_1_dpm_value[dpm].isp_xclk, isp_v4_1_1_dpm_value[dpm].isp_iclk,
-		    isp_v4_1_1_dpm_value[dpm].soc_clk);
+		   dpm, isp_v4_1_1_dpm_value[dpm].isp_xclk,
+		   isp_v4_1_1_dpm_value[dpm].isp_iclk,
+		   isp_v4_1_1_dpm_value[dpm].soc_clk);
 }
 
 int isp_ip_pwr_on(struct isp_context *isp, enum camera_port_id cid,
@@ -103,7 +104,7 @@ int isp_ip_pwr_on(struct isp_context *isp, enum camera_port_id cid,
 	u32 sclk;
 
 	ISP_PR_DBG("cid %u, idx %u, hdr %u\n",
-		    cid, index, hdr_enable);
+		   cid, index, hdr_enable);
 	if (!isp) {
 		ISP_PR_ERR("fail for null isp\n");
 		return RET_INVALID_PARAM;
